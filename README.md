@@ -5,7 +5,7 @@
 ## This class allows to:
 * **mystemize(book)** – get morphological analysis for each word in text
 * **do_pymorphy()** – get morphological analysis for each word in text with all the wordforms considered (makes sense for russian language)
-* **lemmatize()** – 
+* **lemmatize()** – return a text with lemmas for each word + a .json file with lemma and pos for each word
 * **convert(self, tag)** – 
 * **get_parameters(self)** – 
 * **text_cleaning(self)** – 
