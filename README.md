@@ -1,7 +1,5 @@
 # Morphological Book Analyzer
 
-?? description
-
 ## This class allows to:
 * **mystemize(book)** – get morphological analysis for each word in text
 * **do_pymorphy()** – get morphological analysis for each word in text with all the wordforms considered (makes sense for russian language)
