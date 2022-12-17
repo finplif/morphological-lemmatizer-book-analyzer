@@ -5,10 +5,10 @@
 ## This class allows to:
 * **mystemize(book)** – get morphological analysis for each word in text
 * **do_pymorphy()** – get morphological analysis for each word in text with all the wordforms considered (makes sense for russian language)
-* **lemmatize()** – return a text with lemmas for each word + a .json file with lemma and pos for each word
-* **convert(self, tag)** – 
-* **get_parameters(self)** – 
-* **text_cleaning(self)** – 
+* **tagging()** – return a .json file with lemmas for each word and their part of speech
+* **get_parameters()** – return a list with parameters for each word in text (word, lemma, POS, animacy, aspect, case, gender, involvement, mood, number, person, tense, transitivity, voice)
+* **text_cleaning()** – return a list with lemmas of the text words without punctuation
+* **get_pos_proportion()** – 
 * **get_topn_pos(self, pos, topn=20)** – 
 * **find_ngrams(self, ngram_number=10)** – 
 * **visualize_pos_proportion(self)** – 
