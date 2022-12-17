@@ -17,9 +17,8 @@ class BookAnalyzer:
         self.pymd_text = self.do_pymorphy()
         self.tagged_list = self.tagging()
         self.cleaned_text = self.text_cleaning()
-        self.parts = self.get_pos_proportion()
+        self.parts = self.pos_proportion()
         self.data = self.get_parameters()
-        self.bigram_list = self.find_topn_bigrams()
 
     def mystemize(self, book):
         with open(book, encoding="utf-8") as f:
@@ -88,17 +87,18 @@ class BookAnalyzer:
                     cleaned_text.remove(char)
         return cleaned_text
 
-    def get_pos_proportion(self):
+    def pos_proportion(self):
         part = []
+        proportion_dic = {}
         for i in self.tagged_list:
             part.append(i[1])
         total = Counter(part)
         parts = list(total.items())
-        # for i in range(len(parts)):
-        #     print(parts[i][0], '-', parts[i][1])
+        for i in range(len(parts)):
+            proportion_dic[parts[i][0]] = parts[i][1]
         return parts
 
-    def get_topn_pos(self, pos, topn=20):
+    def topn_pos(self, pos, topn=20):
         pos_list = []
         for unit in self.tagged_list:
             if unit[1] == pos:
@@ -107,20 +107,20 @@ class BookAnalyzer:
         topn_pos = pos_total.most_common(topn)
         return topn_pos
 
-    def find_topn_bigrams(self, topn=10):
+    def topn_bigrams(self, topn=10):
         bigrams = nltk.bigrams(self.cleaned_text)
         grams = []
-        bigram_list = []
+        bigram_dic = {}
         for b in bigrams:
             grams.append(b)
         bigramm_total = Counter(grams)
         bigram = bigramm_total.most_common(topn)
-        # for i in range(len(bigram)):
-        #     print(bigram[i][0], '-', bigram[i][1])
-        return bigram_list
+        for i in range(len(bigram)):
+            bigram_dic[bigram[i][0]] = bigram[i][1]
+        return bigram_dic
 
     def visualize_pos_proportion(self):
-        dataframe = pd.DataFrame(self.data)
+        # dataframe = pd.DataFrame(self.data)
 
         # scatter plot: X-asis number of POS usage; Y-asis POS
 
