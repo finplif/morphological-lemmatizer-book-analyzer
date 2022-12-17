@@ -10,14 +10,16 @@ import matplotlib.pyplot as plt
 m = Mystem()
 morph = MorphAnalyzer()
 
-class book_analyzer:
+class BookAnalyzer:
     def __init__(self, book):
         self.book = book
         self.book_text, self.analyzed_book = self.mystemize(self.book)
         self.pymd_text = self.do_pymorphy()
-        self.lemmd_list = self.lemmatize()
-        self.text_cleaning()
+        self.tagged_list = self.tagging()
+        self.cleaned_text = self.text_cleaning()
+        self.parts = self.get_pos_proportion()
         self.data = self.get_parameters()
+        self.bigram_list = self.find_topn_bigrams()
 
     def mystemize(self, book):
         with open(book, encoding="utf-8") as f:
@@ -32,20 +34,19 @@ class book_analyzer:
         tokens = word_tokenize(self.book_text)
         pymorphized_text = []
         for token in tokens:
-            pym = morph.parse(token)  # morphologically analise text
+            pym = morph.parse(token)
             pymorphized_text.append(pym)
         return pymorphized_text
 
-    def lemmatize(self):
-        lemmatized_list = []
+    def tagging(self):
+        tagged_list = []
         for item in self.pymd_text:
             unit = item[0]
-            lemmatized_list.append([unit.normal_form, unit.tag.POS])
+            tagged_list.append([unit.normal_form, unit.tag.POS])
 
-        with open('lemmatized_text_pymorphy.json', 'w', encoding='utf-8') as f:
-            json.dump(lemmatized_list, f, ensure_ascii=False)
-
-        return lemmatized_list
+        with open('tagged_text.json', 'w', encoding='utf-8') as f:
+            json.dump(tagged_list, f, ensure_ascii=False)
+        return tagged_list
 
     def convert(self, tag):
         if tag is None:
@@ -53,7 +54,7 @@ class book_analyzer:
         else:
             return str(tag)
 
-    def get_parameters(self):  # a list with words' parameters
+    def get_parameters(self):
         parameters = []
 
         for item in self.pymd_text:
@@ -77,41 +78,51 @@ class book_analyzer:
         return parameters
 
     def text_cleaning(self):
-        punct = """!"#$%&\'()*+,./:;<=>?@[\\]^_-`–{|}~«»"""
+        cleaned_text = []
+        for i in self.tagged_list:
+            cleaned_text.append(i[0])
+        punct = """!"#$%&\'()*+,./:;–<=>?@[\\]^_-`{|}~«»"""
         for char in punct:
-            for i in self.lemmd_list:
+            for i in cleaned_text:
                 if char == i:
-                    self.lemmd_list.remove(char)
-        return self.lemmd_list
+                    cleaned_text.remove(char)
+        return cleaned_text
+
+    def get_pos_proportion(self):
+        part = []
+        for i in self.tagged_list:
+            part.append(i[1])
+        total = Counter(part)
+        parts = list(total.items())
+        # for i in range(len(parts)):
+        #     print(parts[i][0], '-', parts[i][1])
+        return parts
 
     def get_topn_pos(self, pos, topn=20):
         pos_list = []
-        for unit in self.lemmd_list:
+        for unit in self.tagged_list:
             if unit[1] == pos:
                 pos_list.append(unit[0])
         pos_total = Counter(pos_list)
         topn_pos = pos_total.most_common(topn)
         return topn_pos
 
-    def find_ngrams(self, ngram_number=10):
-        ngrams = nltk.bigrams(self.lemmd_list)
+    def find_topn_bigrams(self, topn=10):
+        bigrams = nltk.bigrams(self.cleaned_text)
         grams = []
-        for g in ngrams:
-            grams.append(g)
-        ngramm_total = Counter(grams)
-        ngram = ngramm_total.most_common(ngram_number)
-        return ngram
+        bigram_list = []
+        for b in bigrams:
+            grams.append(b)
+        bigramm_total = Counter(grams)
+        bigram = bigramm_total.most_common(topn)
+        # for i in range(len(bigram)):
+        #     print(bigram[i][0], '-', bigram[i][1])
+        return bigram_list
 
     def visualize_pos_proportion(self):
-        part = []
-        for i in self.lemmd_list:
-            part.append(i[1])
-        total = Counter(part)
-        self.parts = list(total.items())
-
         dataframe = pd.DataFrame(self.data)
 
-        # scatter plot: X-asis quantity of POS usage; Y-asis POS
+        # scatter plot: X-asis number of POS usage; Y-asis POS
 
         X = []
         Y = []
@@ -121,8 +132,7 @@ class book_analyzer:
             Y.append(self.parts[i][1])
 
         plt.scatter(Y, X, color='MediumAquamarine')
-        plt.title('quantities of pos in my book')
+        plt.title('quantities of pos in the text')
         plt.ylabel('parts of speech')
-        plt.xlabel('quantity')
+        plt.xlabel('number')
         plt.show()
-
